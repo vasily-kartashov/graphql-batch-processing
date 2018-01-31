@@ -12,3 +12,15 @@ return Batch::as('addressesByUserId')
         return $this->addressRepository->findAddressesByUserIds($userIds);
     });
 ```
+
+More complex example
+
+```php
+<?php
+
+return Batch::as('accountsByOrgranizationId')
+    ->collectMultiple($organization->accountIds())
+    ->fetchOneToOne(function (array $accountIds) {
+        return $this->accountRepository->findAccountsByAccountIds($accountIds);
+    });
+```
