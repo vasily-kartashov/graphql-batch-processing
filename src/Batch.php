@@ -42,6 +42,17 @@ class Batch
         }
     }
 
+    protected function unresolvedKeysWithContext(): array
+    {
+        $keys = [];
+        $context = [];
+        foreach ($this->unresolvedKeys as $key) {
+            $keys[] = $key;
+            $context[$key] = $this->batch->context[$key] ?? $key;
+        }
+        return [$keys, $context];
+    }
+
     /**
      * @param mixed $key
      * @param mixed $context
@@ -67,13 +78,9 @@ class Batch
                     $this->defaultTo(null);
                 }
                 return new Deferred(function () use ($callable) {
-                    $keys = $this->batch->unresolvedKeys;
+                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
                     if (!empty($keys)) {
-                        $context = [];
-                        foreach ($keys as $key) {
-                            $context[$key] = $this->batch->context[$key] ?? $key;
-                        }
-                        $this->batch->update(($callable)(array_values($keys), $context));
+                        $this->batch->update(($callable)($keys, $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = array_key_exists($this->key, $resolvedReferences)
@@ -97,13 +104,9 @@ class Batch
                     $this->defaultTo([]);
                 }
                 return new Deferred(function () use ($callable) {
-                    $keys = $this->batch->unresolvedKeys;
+                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
                     if (!empty($keys)) {
-                        $context = [];
-                        foreach ($keys as $key) {
-                            $context[] = $this->batch->context[$key] ?? $key;
-                        }
-                        $this->batch->update(($callable)(array_values($keys), $context));
+                        $this->batch->update(($callable)($keys, $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = array_key_exists($this->key, $resolvedReferences)
@@ -151,13 +154,9 @@ class Batch
                 }
 
                 return new Deferred(function () use ($callable) {
-                    $keys = $this->batch->unresolvedKeys;
+                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
                     if (!empty($keys)) {
-                        $context = [];
-                        foreach ($keys as $key) {
-                            $context[] = $this->batch->context[$key] ?? $key;
-                        }
-                        $this->batch->update(($callable)(array_values($keys), $context));
+                        $this->batch->update(($callable)($keys, $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
 
@@ -186,13 +185,9 @@ class Batch
                 }
 
                 return new Deferred(function () use ($callable) {
-                    $keys = $this->batch->unresolvedKeys;
+                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
                     if (!empty($keys)) {
-                        $context = [];
-                        foreach ($keys as $key) {
-                            $context[] = $this->batch->context[$key] ?? $key;
-                        }
-                        $this->batch->update(($callable)(array_values($keys), $context));
+                        $this->batch->update(($callable)($keys, $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $result = [];
