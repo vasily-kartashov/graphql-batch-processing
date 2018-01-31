@@ -48,7 +48,7 @@ class Batch
         $context = [];
         foreach ($this->unresolvedKeys as $key) {
             $keys[] = $key;
-            $context[$key] = $this->batch->context[$key] ?? $key;
+            $context[$key] = $this->context[$key] ?? $key;
         }
         return [$keys, $context];
     }
