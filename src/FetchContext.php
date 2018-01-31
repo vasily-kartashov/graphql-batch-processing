@@ -32,6 +32,7 @@ abstract class FetchContext extends Batch
      */
     public function __construct(Batch $batch, $key, $context)
     {
+        parent::__construct();
         $this->batch = $batch;
         $this->key = $key;
         $this->context = $context;

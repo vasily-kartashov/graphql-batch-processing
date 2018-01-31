@@ -18,7 +18,7 @@ class Batch
     /** @var array */
     protected $context = [];
 
-    private function __construct()
+    protected function __construct()
     {
     }
 
@@ -30,6 +30,10 @@ class Batch
         return self::$batches[$batchName];
     }
 
+    /**
+     * @param array $references
+     * @return void
+     */
     protected function update(array $references)
     {
         foreach ($references as $key => $reference) {
