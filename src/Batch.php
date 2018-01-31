@@ -51,6 +51,7 @@ class Batch
     {
         if (!array_key_exists($key, $this->resolvedReferences)) {
             $this->unresolvedKeys[$key] = $key;
+            $this->context[$key] = $context;
         }
 
         return new class($this, $key, $context) extends FetchContext
@@ -68,7 +69,11 @@ class Batch
                 return new Deferred(function () use ($callable) {
                     $keys = $this->batch->unresolvedKeys;
                     if (!empty($keys)) {
-                        $this->batch->update(($callable)(array_values($keys)));
+                        $context = [];
+                        foreach ($keys as $key) {
+                            $context[$key] = $this->batch->context[$key] ?? $key;
+                        }
+                        $this->batch->update(($callable)(array_values($keys), $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = array_key_exists($this->key, $resolvedReferences)
@@ -94,7 +99,11 @@ class Batch
                 return new Deferred(function () use ($callable) {
                     $keys = $this->batch->unresolvedKeys;
                     if (!empty($keys)) {
-                        $this->batch->update(($callable)(array_values($keys)));
+                        $context = [];
+                        foreach ($keys as $key) {
+                            $context[] = $this->batch->context[$key] ?? $key;
+                        }
+                        $this->batch->update(($callable)(array_values($keys), $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = array_key_exists($this->key, $resolvedReferences)
@@ -124,6 +133,7 @@ class Batch
         foreach ($keys as $key) {
             if (!array_key_exists($key, $this->resolvedReferences)) {
                 $this->unresolvedKeys[$key] = $key;
+                $this->context[$key] = $context;
             }
         }
 
@@ -143,7 +153,11 @@ class Batch
                 return new Deferred(function () use ($callable) {
                     $keys = $this->batch->unresolvedKeys;
                     if (!empty($keys)) {
-                        $this->batch->update(($callable)(array_values($keys)));
+                        $context = [];
+                        foreach ($keys as $key) {
+                            $context[] = $this->batch->context[$key] ?? $key;
+                        }
+                        $this->batch->update(($callable)(array_values($keys), $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
 
@@ -174,7 +188,11 @@ class Batch
                 return new Deferred(function () use ($callable) {
                     $keys = $this->batch->unresolvedKeys;
                     if (!empty($keys)) {
-                        $this->batch->update(($callable)(array_values($keys)));
+                        $context = [];
+                        foreach ($keys as $key) {
+                            $context[] = $this->batch->context[$key] ?? $key;
+                        }
+                        $this->batch->update(($callable)(array_values($keys), $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $result = [];
