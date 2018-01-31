@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<psalm name="Psalm config" stopOnFirstError="false" useDocblockTypes="true" totallyTyped="false">
+    <projectFiles>
+        <directory name="src" />
+    </projectFiles>
+    <issueHandlers>
+        <InvalidScope errorLevel="suppress"/>
+        <MissingClosureParamType errorLevel="suppress"/>
+        <MissingClosureReturnType errorLevel="suppress"/>
+    </issueHandlers>
+</psalm>

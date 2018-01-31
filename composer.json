@@ -1,0 +1,33 @@
+{
+  "name": "vasily-kartashov/graphql-batch-processor",
+  "type": "library",
+  "description": "GraphQL batch processor",
+  "keywords": ["library", "graphql", "batch"],
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Vasily Kartashov",
+      "email": "vasily@kartashov.com"
+    }
+  ],
+  "require": {
+    "php": "^7.0",
+    "webonyx/graphql-php": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6",
+    "phpstan/phpstan": "*",
+    "squizlabs/php_codesniffer": "*",
+    "vimeo/psalm": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "BatchProcessor\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "BatchProcessor\\": "tests"
+    }
+  }
+}
