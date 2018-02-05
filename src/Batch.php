@@ -83,9 +83,12 @@ class Batch
                         $this->batch->update(($callable)($keys, $context));
                     }
                     $resolvedReferences = $this->batch->resolvedReferences;
-                    $resolvedReference = array_key_exists($this->key, $resolvedReferences)
-                        ? $resolvedReferences[$this->key]
-                        : $this->defaultValue;
+                    $resolvedReference = $this->defaultValue;
+                    if (array_key_exists($this->key, $resolvedReferences)) {
+                        if ($this->filter === null || ($this->filter)($resolvedReferences[$this->key])) {
+                            $resolvedReference = $resolvedReferences[$this->key];
+                        }
+                    }
                     $context = $this->context ?? $this->key;
 
                     /** @psalm-suppress PossiblyNullFunctionCall */
@@ -116,6 +119,9 @@ class Batch
 
                     $result = [];
                     foreach ($resolvedReference as $key => $referencedObject) {
+                        if ($this->filter && !($this->filter)($referencedObject)) {
+                            continue;
+                        }
                         /** @psalm-suppress PossiblyNullFunctionCall */
                         $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
                     }
@@ -162,9 +168,12 @@ class Batch
 
                     $result = [];
                     foreach ($this->key as $key) {
-                        $referencedObject = array_key_exists($key, $resolvedReferences)
-                            ? $resolvedReferences[$key]
-                            : $this->defaultValue;
+                        $referencedObject = $this->defaultValue;
+                        if (array_key_exists($key, $resolvedReferences)) {
+                            if ($this->filter === null || ($this->filter)($resolvedReferences[$key])) {
+                                $referencedObject = $resolvedReferences[$key];
+                            }
+                        }
                         $context = $fetchContext->context ?? $key;
                         /** @psalm-suppress PossiblyNullFunctionCall */
                         $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
@@ -198,6 +207,9 @@ class Batch
                         $context = $this->context ?? $key;
                         $result[$key] = [];
                         foreach ($resolvedReference as $referencedObjectKey => $referencedObject) {
+                            if ($this->filter && !($this->filter)($referencedObject)) {
+                                continue;
+                            }
                             /** @psalm-suppress PossiblyNullFunctionCall */
                             $result[$key][$referencedObjectKey] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
                         }

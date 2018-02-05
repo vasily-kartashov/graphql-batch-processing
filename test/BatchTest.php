@@ -118,4 +118,42 @@ class BatchTest extends TestCase
 
         Assert::assertEquals(['Ivan', 'John'], $fetchKeys);
     }
+
+    public function testFilterOneToMany()
+    {
+        $deferred = Batch::as(__METHOD__)
+            ->collectOne('Ivan')
+            ->filter(function (string $lastName) {
+                return $lastName != 'Smirnov';
+            })
+            ->fetchOneToMany(function () {
+                return [
+                    'Ivan' => [
+                        'Petrov',
+                        'Smirnov'
+                    ]
+                ];
+            });
+
+        Deferred::runQueue();
+        Assert::assertEquals(['Petrov'], $deferred->promise->result);
+    }
+
+    public function testFilterOneToOne()
+    {
+        $deferred = Batch::as(__METHOD__)
+            ->collectOne('Ivan')
+            ->defaultTo('Defaultsky')
+            ->filter(function (string $lastName) {
+                return $lastName != 'Petrov';
+            })
+            ->fetchOneToOne(function () {
+                return [
+                    'Ivan' => 'Petrov'
+                ];
+            });
+
+        Deferred::runQueue();
+        Assert::assertEquals('Defaultsky', $deferred->promise->result);
+    }
 }

@@ -23,6 +23,9 @@ abstract class FetchContext extends Batch
     protected $defaultValue;
 
     /** @var callable|null */
+    protected $filter;
+
+    /** @var callable|null */
     protected $formatter;
 
     /**
@@ -49,6 +52,15 @@ abstract class FetchContext extends Batch
         }
         $this->defaultValue = $defaultValue;
         $this->defaultValueSet = true;
+        return $this;
+    }
+
+    public function filter(callable $filter): FetchContext
+    {
+        if ($this->filter !== null) {
+            throw new RuntimeException('Filter already set');
+        }
+        $this->filter = $filter;
         return $this;
     }
 
