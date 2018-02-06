@@ -24,10 +24,10 @@ class Batch
 
     public static function as(string $batchName): Batch
     {
-        if (!isset(self::$batches[$batchName])) {
-            self::$batches[$batchName] = new Batch();
+        if (!isset(static::$batches[$batchName])) {
+            static::$batches[$batchName] = new Batch();
         }
-        return self::$batches[$batchName];
+        return static::$batches[$batchName];
     }
 
     /**
