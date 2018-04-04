@@ -22,10 +22,16 @@ abstract class FetchContext extends Batch
     /** @var mixed */
     protected $defaultValue;
 
-    /** @var callable|null */
+    /**
+     * @var null|callable
+     * @psalm-var null|callable(mixed):bool
+     */
     protected $filter;
 
-    /** @var callable|null */
+    /**
+     * @var null|callable
+     * @psalm-var null|callable(mixed,mixed,array):mixed
+     */
     protected $formatter;
 
     /**
@@ -55,6 +61,11 @@ abstract class FetchContext extends Batch
         return $this;
     }
 
+    /**
+     * @param callable $filter
+     * @psalm-param @psalm-var @callable(mixed) : bool $filter
+     * @return FetchContext
+     */
     public function filter(callable $filter): FetchContext
     {
         if ($this->filter !== null) {
@@ -64,6 +75,11 @@ abstract class FetchContext extends Batch
         return $this;
     }
 
+    /**
+     * @param callable $formatter
+     * @psalm-param callable(mixed,mixed,array):mixed $formatter
+     * @return FetchContext
+     */
     public function format(callable $formatter): FetchContext
     {
         if ($this->formatter !== null) {

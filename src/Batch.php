@@ -67,6 +67,11 @@ class Batch
 
         return new class($this, $key, $context) extends FetchContext
         {
+            /**
+             * @param callable $callable
+             * @psalm-param callable(array, array) : array $callable
+             * @return Deferred
+             */
             public function fetchOneToOne(callable $callable): Deferred
             {
                 if ($this->formatter === null) {
@@ -96,6 +101,11 @@ class Batch
                 });
             }
 
+            /**
+             * @param callable $callable
+             * @psalm-param callable(array, array) : array $callable
+             * @return Deferred
+             */
             public function fetchOneToMany(callable $callable): Deferred
             {
                 if ($this->formatter === null) {
@@ -148,6 +158,11 @@ class Batch
 
         return new class($this, $keys, $context) extends FetchContext
         {
+            /**
+             * @param callable $callable
+             * @psalm-param callable(array,array|null):array $callable
+             * @return Deferred
+             */
             public function fetchOneToOne(callable $callable): Deferred
             {
                 if ($this->formatter === null) {
@@ -182,6 +197,11 @@ class Batch
                 });
             }
 
+            /**
+             * @param callable $callable
+             * @psalm-param callable(array,array|null):array $callable
+             * @return Deferred
+             */
             public function fetchOneToMany(callable $callable): Deferred
             {
                 if ($this->formatter === null) {
