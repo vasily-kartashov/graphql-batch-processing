@@ -95,8 +95,7 @@ class Batch
                         }
                     }
                     $context = $this->context ?? $this->key;
-
-                    /** @psalm-suppress PossiblyNullFunctionCall */
+                    assert($this->formatter !== null);
                     return ($this->formatter)($resolvedReference, $context, $resolvedReferences);
                 });
             }
@@ -132,7 +131,7 @@ class Batch
                         if ($this->filter && !($this->filter)($referencedObject)) {
                             continue;
                         }
-                        /** @psalm-suppress PossiblyNullFunctionCall */
+                        assert($this->formatter !== null);
                         $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
                     }
                     return $result;
@@ -190,7 +189,7 @@ class Batch
                             }
                         }
                         $context = $fetchContext->context ?? $key;
-                        /** @psalm-suppress PossiblyNullFunctionCall */
+                        assert($this->formatter !== null);
                         $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
                     }
                     return $result;
@@ -230,7 +229,7 @@ class Batch
                             if ($this->filter && !($this->filter)($referencedObject)) {
                                 continue;
                             }
-                            /** @psalm-suppress PossiblyNullFunctionCall */
+                            assert($this->formatter !== null);
                             $result[$key][$referencedObjectKey] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
                         }
                     }
