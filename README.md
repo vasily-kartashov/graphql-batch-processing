@@ -5,9 +5,14 @@
 ## Simple Example:
 
 ```php
+// Name of cache is `addressesByUserId`
 return Batch::as('addressesByUserId')
+    // In this context collect user's ID
     ->collectOne($user->id())
-    ->fetchOneToMany(function (array $userIds) {
+    // When all user IDs are collected, fetch addresses for all collected user IDs
+    // The callback is only executed once for each set of user IDs
+    // And cached internally under name `addressesByUserId`
+    ->fetchOneToMany(function (array $userIds) { 
         return $this->addressRepository->findAddressesByUserIds($userIds);
     });
 ```
