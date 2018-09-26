@@ -3,11 +3,16 @@
 namespace BatchProcessor;
 
 use GraphQL\Deferred;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Batch
 {
     /** @var Batch[] */
     private static $batches = [];
+
+    /** @var string */
+    protected $name;
 
     /** @var array */
     protected $unresolvedKeys = [];
@@ -18,14 +23,25 @@ class Batch
     /** @var array */
     protected $context = [];
 
-    protected function __construct()
+    /** @var LoggerInterface */
+    protected $logger;
+
+    protected function __construct(string $name)
     {
+        $this->name = $name;
+        $this->logger = new NullLogger();
+    }
+
+    public function setLogger(LoggerInterface $logger): Batch
+    {
+        $this->logger = $logger;
+        return $this;
     }
 
     public static function as(string $batchName): Batch
     {
         if (!isset(static::$batches[$batchName])) {
-            static::$batches[$batchName] = new Batch();
+            static::$batches[$batchName] = new Batch($batchName);
         }
         return static::$batches[$batchName];
     }
@@ -65,7 +81,7 @@ class Batch
             $this->context[$key] = $context;
         }
 
-        return new class($this, $key, $context) extends FetchContext
+        return new class($this, $key, $context, $this->logger) extends FetchContext
         {
             /**
              * @param callable $callable
@@ -74,19 +90,11 @@ class Batch
              */
             public function fetchOneToOne(callable $callable): Deferred
             {
-                if ($this->formatter === null) {
-                    $this->format(function ($referencedObject) {
-                        return $referencedObject;
-                    });
-                }
                 if (!$this->defaultValueSet) {
                     $this->defaultTo(null);
                 }
                 return new Deferred(function () use ($callable) {
-                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
-                    if (!empty($keys)) {
-                        $this->batch->update(($callable)($keys, $context));
-                    }
+                    $this->processUnresolvedKeys($callable);
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = $this->defaultValue;
                     if (array_key_exists($this->key, $resolvedReferences)) {
@@ -95,8 +103,11 @@ class Batch
                         }
                     }
                     $context = $this->context ?? $this->key;
-                    assert($this->formatter !== null);
-                    return ($this->formatter)($resolvedReference, $context, $resolvedReferences);
+                    if ($this->formatter === null) {
+                        return $resolvedReference;
+                    } else {
+                        return ($this->formatter)($resolvedReference, $context, $resolvedReferences);
+                    }
                 });
             }
 
@@ -107,19 +118,11 @@ class Batch
              */
             public function fetchOneToMany(callable $callable): Deferred
             {
-                if ($this->formatter === null) {
-                    $this->format(function ($referencedObject) {
-                        return $referencedObject;
-                    });
-                }
                 if (!$this->defaultValueSet) {
                     $this->defaultTo([]);
                 }
                 return new Deferred(function () use ($callable) {
-                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
-                    if (!empty($keys)) {
-                        $this->batch->update(($callable)($keys, $context));
-                    }
+                    $this->processUnresolvedKeys($callable);
                     $resolvedReferences = $this->batch->resolvedReferences;
                     $resolvedReference = array_key_exists($this->key, $resolvedReferences)
                         ? $resolvedReferences[$this->key]
@@ -131,8 +134,11 @@ class Batch
                         if ($this->filter && !($this->filter)($referencedObject)) {
                             continue;
                         }
-                        assert($this->formatter !== null);
-                        $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                        if ($this->formatter === null) {
+                            $result[$key] = $referencedObject;
+                        } else {
+                            $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                        }
                     }
                     return $result;
                 });
@@ -155,7 +161,7 @@ class Batch
             }
         }
 
-        return new class($this, $keys, $context) extends FetchContext
+        return new class($this, $keys, $context, $this->logger) extends FetchContext
         {
             /**
              * @param callable $callable
@@ -164,20 +170,11 @@ class Batch
              */
             public function fetchOneToOne(callable $callable): Deferred
             {
-                if ($this->formatter === null) {
-                    $this->format(function ($referencedObject) {
-                        return $referencedObject;
-                    });
-                }
                 if (!$this->defaultValueSet) {
                     $this->defaultTo(null);
                 }
-
                 return new Deferred(function () use ($callable) {
-                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
-                    if (!empty($keys)) {
-                        $this->batch->update(($callable)($keys, $context));
-                    }
+                    $this->processUnresolvedKeys($callable);
                     $resolvedReferences = $this->batch->resolvedReferences;
 
                     $result = [];
@@ -189,8 +186,11 @@ class Batch
                             }
                         }
                         $context = $fetchContext->context ?? $key;
-                        assert($this->formatter !== null);
-                        $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                        if ($this->formatter === null) {
+                            $result[$key] = $referencedObject;
+                        } else {
+                            $result[$key] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                        }
                     }
                     return $result;
                 });
@@ -203,21 +203,13 @@ class Batch
              */
             public function fetchOneToMany(callable $callable): Deferred
             {
-                if ($this->formatter === null) {
-                    $this->format(function ($referencedObject) {
-                        return $referencedObject;
-                    });
-                }
                 if (!$this->defaultValueSet) {
                     $this->defaultTo([]);
                 }
-
                 return new Deferred(function () use ($callable) {
-                    list($keys, $context) = $this->batch->unresolvedKeysWithContext();
-                    if (!empty($keys)) {
-                        $this->batch->update(($callable)($keys, $context));
-                    }
+                    $this->processUnresolvedKeys($callable);
                     $resolvedReferences = $this->batch->resolvedReferences;
+
                     $result = [];
                     foreach ($this->key as $key) {
                         $resolvedReference = array_key_exists($key, $resolvedReferences)
@@ -229,8 +221,11 @@ class Batch
                             if ($this->filter && !($this->filter)($referencedObject)) {
                                 continue;
                             }
-                            assert($this->formatter !== null);
-                            $result[$key][$referencedObjectKey] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                            if ($this->formatter === null) {
+                                $result[$key][$referencedObjectKey] = $referencedObject;
+                            } else {
+                                $result[$key][$referencedObjectKey] = ($this->formatter)($referencedObject, $context, $resolvedReferences);
+                            }
                         }
                     }
                     return $result;

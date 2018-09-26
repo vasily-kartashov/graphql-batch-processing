@@ -3,6 +3,7 @@
 namespace BatchProcessor;
 
 use GraphQL\Deferred;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 abstract class FetchContext extends Batch
@@ -34,17 +35,23 @@ abstract class FetchContext extends Batch
      */
     protected $formatter;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * @param Batch $batch
      * @param mixed $key
      * @param mixed $context
+     * @param LoggerInterface $logger
      */
-    public function __construct(Batch $batch, $key, $context)
+    public function __construct(Batch $batch, $key, $context, LoggerInterface $logger)
     {
-        parent::__construct();
-        $this->batch = $batch;
-        $this->key = $key;
+        parent::__construct($batch->name);
+
+        $this->batch   = $batch;
+        $this->key     = $key;
         $this->context = $context;
+        $this->logger  = $logger;
     }
 
     /**
@@ -63,7 +70,7 @@ abstract class FetchContext extends Batch
 
     /**
      * @param callable $filter
-     * @psalm-param @psalm-var @callable(mixed) : bool $filter
+     * @psalm-param callable(mixed):bool $filter
      * @return FetchContext
      */
     public function filter(callable $filter): FetchContext
@@ -92,4 +99,31 @@ abstract class FetchContext extends Batch
     abstract public function fetchOneToOne(callable $callable): Deferred;
 
     abstract public function fetchOneToMany(callable $callable): Deferred;
+
+    /**
+     * @param callable $callable
+     * @return void
+     */
+    protected function processUnresolvedKeys(callable $callable)
+    {
+        list($keys, $context) = $this->batch->unresolvedKeysWithContext();
+        if (!empty($keys)) {
+            $this->logger->debug('Batch {name} processing keys [{keys}]', [
+                'name' => $this->name,
+                'keys' => join(', ', $keys)
+            ]);
+            $result = ($callable)($keys, $context);
+            if (empty($result)) {
+                $this->logger->debug('Batch {name} empty result set', [
+                    'name' => $this->name
+                ]);
+            } else {
+                $this->logger->debug('Batch {name} fetch returned keys [{keys}]', [
+                    'name' => $this->name,
+                    'keys' => join(', ', array_keys($result))
+                ]);
+            }
+            $this->batch->update($result);
+        }
+    }
 }
