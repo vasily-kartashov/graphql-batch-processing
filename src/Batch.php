@@ -185,7 +185,7 @@ class Batch
                                 $referencedObject = $resolvedReferences[$key];
                             }
                         }
-                        $context = $fetchContext->context ?? $key;
+                        $context = $this->context ?? $key;
                         if ($this->formatter === null) {
                             $result[$key] = $referencedObject;
                         } else {
