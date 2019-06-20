@@ -156,4 +156,25 @@ class BatchTest extends TestCase
         Deferred::runQueue();
         Assert::assertEquals('Defaultsky', $deferred->promise->result);
     }
+
+    public function testFailedKeysAreNotRefetched()
+    {
+        $deferred = [];
+        $count = 0;
+        for ($i = 0; $i < 5; $i++) {
+            $deferred[$i] = Batch::as(__METHOD__)
+                ->collectOne(1)
+                ->defaultTo($i)
+                ->fetchOneToOne(function () use (&$count) {
+                    $count++;
+                    return [];
+                });
+        }
+
+        Deferred::runQueue();
+        foreach ($deferred as $i => $d) {
+            Assert::assertEquals($i, $d->promise->result);
+        }
+        Assert::assertEquals(1, $count);
+    }
 }

@@ -48,12 +48,15 @@ class Batch
 
     /**
      * @param array $references
+     * @param array $keys
      * @return void
      */
-    protected function update(array $references)
+    protected function update(array $references, array $keys)
     {
         foreach ($references as $key => $reference) {
             $this->resolvedReferences[$key] = $reference;
+        }
+        foreach ($keys as $key) {
             unset($this->unresolvedKeys[$key]);
         }
     }

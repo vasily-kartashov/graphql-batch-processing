@@ -123,7 +123,7 @@ abstract class FetchContext extends Batch
                     'keys' => join(', ', array_keys($result))
                 ]);
             }
-            $this->batch->update($result);
+            $this->batch->update($result, $keys);
         }
     }
 }
