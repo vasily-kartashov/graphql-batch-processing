@@ -45,3 +45,14 @@ return Batch::as('addressesByUserId')
         return $this->addressRepository->findAddressesByUserIds($userIds);
     });
 ```
+
+## Tracing
+
+Batches understand PSR-3 Loggers which can provide you with mode feel of what's going on behind the scene
+
+```php
+return Batch::as('usersByUserIds')
+    ->setLogger($logger)
+    ->collectOne(...)
+    ...
+```
