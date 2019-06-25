@@ -177,4 +177,22 @@ class BatchTest extends TestCase
         }
         Assert::assertEquals(1, $count);
     }
+
+    public function testDefaultValuesAreUnique()
+    {
+        $deferred = [];
+        for ($i = 0; $i < 5; $i++) {
+            $deferred[$i] = Batch::as(__METHOD__)
+                ->collectOne($i)
+                ->defaultTo('default-' . $i)
+                ->fetchOneToOne(function () use (&$count) {
+                    return [];
+                });
+        }
+
+        Deferred::runQueue();
+        foreach ($deferred as $i => $d) {
+            Assert::assertEquals('default-' . $i, $d->promise->result);
+        }
+    }
 }
