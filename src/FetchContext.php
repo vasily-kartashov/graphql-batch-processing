@@ -96,8 +96,18 @@ abstract class FetchContext extends Batch
         return $this;
     }
 
+    /**
+     * @param callable $callable
+     * @psalm-param callable(array,array|null):array $callable
+     * @return Deferred
+     */
     abstract public function fetchOneToOne(callable $callable): Deferred;
 
+    /**
+     * @param callable $callable
+     * @psalm-param callable(array,array|null): array $callable
+     * @return Deferred
+     */
     abstract public function fetchOneToMany(callable $callable): Deferred;
 
     /**
