@@ -5,13 +5,13 @@
 ## Simple Example:
 
 ```php
-// Name of cache is `addressesByUserId`
+// Name of the cache is `addressesByUserId`
 return Batch::as('addressesByUserId')
-    // In this context collect user's ID
+    // Collect user IDs
     ->collectOne($user->id())
     // When all user IDs are collected, fetch addresses for all collected user IDs
     // The callback is only executed once for each set of user IDs
-    // And cached internally under name `addressesByUserId`
+    // And cached internally under the name `addressesByUserId`
     ->fetchOneToMany(function (array $userIds) { 
         return $this->addressRepository->findAddressesByUserIds($userIds);
     });
@@ -29,7 +29,7 @@ return Batch::as('accountsByOrgranizationId')
 
 ## Proper example
 
-Get all addresses by users; post filter hidden address; format each address as a string; if no address, default to company address
+Get all addresses for each user; post filter out hidden addresses; format each address as a string; if there's no address, default to company's address
 
 ```php
 return Batch::as('addressesByUserId')
@@ -48,7 +48,7 @@ return Batch::as('addressesByUserId')
 
 ## Tracing
 
-Batches understand PSR-3 Loggers which can provide you with mode feel of what's going on behind the scene
+Batches accept PSR-3 Loggers
 
 ```php
 return Batch::as('usersByUserIds')
