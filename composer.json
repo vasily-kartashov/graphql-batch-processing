@@ -12,7 +12,7 @@
   ],
   "require": {
     "php": "^7.0",
-    "webonyx/graphql-php": "*"
+    "webonyx/graphql-php": "<=0.13.8"
   },
   "require-dev": {
     "phpunit/phpunit": "^6 || ^7",
