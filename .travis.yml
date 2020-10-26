@@ -9,6 +9,7 @@ php:
   - '7.4'
 
 before_script:
+  - php -v | grep -q 'PHP 7.0' && composer self-update --rollback
   - composer update
 
 script:
