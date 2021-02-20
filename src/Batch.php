@@ -20,7 +20,7 @@ class Batch
     /** @var array */
     protected $resolvedReferences = [];
 
-    /** @var array */
+    /** @var mixed */
     protected $context = [];
 
     /** @var LoggerInterface */
